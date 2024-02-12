@@ -63,7 +63,7 @@ def plot_results(pca_df, clusters, centers):
     plt.legend()
     plt.show()
 
-rom pyclustering.cluster.center_initializer import kmeans_plusplus_initializer
+from pyclustering.cluster.center_initializer import kmeans_plusplus_initializer
 from pyclustering.utils.metric import distance_metric, type_metric
 from pyclustering.cluster.kmeans import kmeans
 from pyclustering.cluster.silhouette import silhouette
