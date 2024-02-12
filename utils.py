@@ -49,6 +49,7 @@ def plot_results(pca_df, clusters, centers):
                 c=results_df_3['clusters'], cmap='plasma', edgecolors='k', s=100, alpha=0.8, label='Dataset 003')
 
     # Plot cluster centers
+    centers=np.array(centers)
     plt.scatter(centers[:, 0], centers[:, 1], c='red', marker='X', s=200, label='Cluster Centers')
 
     plt.title('K-means Clustering after PCA')
