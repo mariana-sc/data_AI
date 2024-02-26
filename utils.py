@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import copy
+from pyclustering.cluster.kmeans import kmeans
+from pyclustering.utils.metric import distance_metric, type_metric
 
 
 def add_remaining_useful_life(df):
@@ -35,6 +37,19 @@ def create_dataset(df):
     return [np.array([pc1, pc2]) for pc1, pc2 in zip(df['Principal Component 1'], df['Principal Component 2'])]
 
 
+def create_test_df():
+    test = np.zeros((7, 2))
+    test[:, 0] = [2, 2, 3, 3, 2, 0, 2]
+    test[:, 1] = [2, 3, 2, 2, 1, 2, 0]
+
+    test_df = pd.DataFrame(test, columns=[
+        'Principal Component 1',
+        'Principal Component 2',
+
+    ])
+    return test_df
+
+
 def get_results(clusters, dataset):
     """
     Get the results from the clustering analysis in the correct format for silhouette_score and plot_results
@@ -50,40 +65,73 @@ def get_results(clusters, dataset):
     return labels
 
 
-def plot_results(pca_df, clusters, centers):
+def plot_results(pca_df, test_df, clusters_train, clusters_test, centers, metric):
     """
     Plot the results from the clustering analysis
-    :param pca_df: pca_df
-    :param clusters: Results from the clustering analysis
-    :param centers: Cluster centers as calculated by the clustering algorithm
+    :param pca_df: Dataframe from the principal component analysis
+    :param test_df: Dataframe from the test set
+    :param clusters_train: Results from the clustering analysis for the train set
+    :param clusters_test: Results from the clustering analysis for the test set
+    :param centers: Cluster centers
+    :param metric: Metric used for the clustering analysis (str)
     :return:
     """
-
     # Prepare the data
     plt.figure(figsize=(10, 6))
 
     dataset = create_dataset(pca_df)
-    clusters_res = get_results(clusters, dataset)
+    clusters_train = get_results(clusters_train, dataset)
 
     results_man_df = copy.deepcopy(pca_df)
-    results_man_df['clusters'] = clusters_res
-    results_df_1 = results_man_df[results_man_df['dataset'] == 1]
-    results_df_3 = results_man_df[results_man_df['dataset'] == 3]
+    results_test = copy.deepcopy(test_df)
 
-    # Plot data points for each dataset
-    plt.scatter(results_df_1['Principal Component 1'], results_df_1['Principal Component 2'], marker="s",
-                c=results_df_1['clusters'], cmap='plasma', edgecolors='k', s=120, alpha=0.8, label='Dataset 001')
+    results_man_df['clusters'] = clusters_train
+    results_test['clusters'] = clusters_test
 
-    plt.scatter(results_df_3['Principal Component 1'], results_df_3['Principal Component 2'], marker="*",
-                c=results_df_3['clusters'], cmap='plasma', edgecolors='k', s=100, alpha=0.8, label='Dataset 003')
+    # Plot train data
+    plt.scatter(results_man_df['Principal Component 1'], results_man_df['Principal Component 2'], marker="s",
+                c=results_man_df['clusters'], cmap='plasma', edgecolors='k', s=120, alpha=0.8, label='Train Data')
+
+    # Plot test data
+    plt.scatter(test_df['Principal Component 1'], test_df['Principal Component 2'], marker="^",
+                c=results_test['clusters'], cmap='plasma', edgecolors='k', s=150, alpha=0.8, label='Test Data')
 
     # Plot cluster centers
+
     centers = np.array(centers)
     plt.scatter(centers[:, 0], centers[:, 1], c='red', marker='X', s=200, label='Cluster Centers')
 
-    plt.title('K-means Clustering after PCA')
+    plt.title(f"Kmeans Clustering after PCA_{metric} Distance")
     plt.xlabel('Principal Component 1')
     plt.ylabel('Principal Component 2')
     plt.grid(visible=False)
     plt.legend()
     plt.show()
+
+
+class kmeans_mod(kmeans):
+
+    def predict(self, points):
+        """!
+        @brief Calculates the closest cluster to each point.
+
+        @param[in] points (array_like): Points for which closest clusters are calculated.
+
+        @return (list) List of closest clusters for each point. Each cluster is denoted by index. Return empty
+                  collection if 'process()' method was not called.
+
+        """
+
+        nppoints = np.array(points)
+        if len(self._kmeans__clusters) == 0:
+            return []
+
+        differences = np.zeros((len(nppoints), len(self._kmeans__centers)))
+        for index_point in range(len(nppoints)):
+            if self._kmeans__metric.get_type() != type_metric.USER_DEFINED:
+                differences[index_point] = self._kmeans__metric(nppoints[index_point], np.array(self._kmeans__centers))
+            else:
+                differences[index_point] = [self._kmeans__metric(nppoints[index_point], center) for center in
+                                            np.array(self._kmeans__centers)]
+
+        return np.argmin(differences, axis=1)
