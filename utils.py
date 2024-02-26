@@ -28,11 +28,21 @@ def add_remaining_useful_life(df):
     return result_frame
 
 
-def create_dataset(df):
+def create_dataset(df, pcs):
     """
     Create a dataset from the dataframe from the principal component analysis
     :param df: pca_df
+    :param pcs: Principal components to use (list) e.g. [8,9]
     :return: Dataset for the clustering analysis
+    """
+    if 1 not in pcs or 2 not in pcs:
+        raise ValueError('You picked the wrong components')
+    return [np.array([pc1, pc2]) for pc1, pc2 in zip(df['Principal Component 1'], df['Principal Component 2'])]
+
+
+def create_dataset_admin(df):
+    """
+    Create a dataset from the dataframe from the principal component analysis_admin use (components 1 and 2 preselected)
     """
     return [np.array([pc1, pc2]) for pc1, pc2 in zip(df['Principal Component 1'], df['Principal Component 2'])]
 
@@ -48,6 +58,10 @@ def create_test_df():
 
     ])
     return test_df
+
+
+def create_test_dataset():
+    return create_dataset_admin(create_test_df())
 
 
 def get_results(clusters, dataset):
@@ -79,7 +93,7 @@ def plot_results(pca_df, test_df, clusters_train, clusters_test, centers, metric
     # Prepare the data
     plt.figure(figsize=(10, 6))
 
-    dataset = create_dataset(pca_df)
+    dataset = create_dataset_admin(pca_df)
     clusters_train = get_results(clusters_train, dataset)
 
     results_man_df = copy.deepcopy(pca_df)
