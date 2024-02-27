@@ -10,7 +10,9 @@ def add_remaining_useful_life(df):
     """
     Add the remaining useful life to the dataframe
     :param df: Dataframes from the CMAPSS dataset
+    :type df: pd.DataFrame
     :return: Dataframe with the remaining useful life added
+    :rtype: pd.DataFrame
     """
     # Get the total number of cycles for each unit
     grouped_by_unit = df.groupby(by="unit_nr")
@@ -32,8 +34,11 @@ def create_dataset(df, pcs):
     """
     Create a dataset from the dataframe from the principal component analysis
     :param df: pca_df
-    :param pcs: Principal components to use (list) e.g. [8,9]
+    :type df: pd.DataFrame
+    :param pcs: Principal components to use e.g. [8,9]
+    :type pcs: list
     :return: Dataset for the clustering analysis
+    :rtype: list
     """
     if 1 not in pcs or 2 not in pcs:
         raise ValueError('You picked the wrong components')
@@ -43,11 +48,18 @@ def create_dataset(df, pcs):
 def create_dataset_admin(df):
     """
     Create a dataset from the dataframe from the principal component analysis_admin use (components 1 and 2 preselected)
+    :param df: pca_df
+    :type df: pd.DataFrame
     """
     return [np.array([pc1, pc2]) for pc1, pc2 in zip(df['Principal Component 1'], df['Principal Component 2'])]
 
 
 def create_test_df():
+    """
+    This function creates the test dataframe for the clustering analysis
+    :return: test dataframe
+    :rtype: pd.DataFrame
+    """
     test = np.zeros((7, 2))
     test[:, 0] = [2, 2, 3, 3, 2, 0, 2]
     test[:, 1] = [2, 3, 2, 2, 1, 2, 0]
@@ -61,6 +73,11 @@ def create_test_df():
 
 
 def create_test_dataset():
+    """
+    Thin function creates the test dataset for the clustering analysis
+    :return: test dataset
+    :rtype: list of np.arrays
+    """
     return create_dataset_admin(create_test_df())
 
 
@@ -68,8 +85,11 @@ def get_results(clusters, dataset):
     """
     Get the results from the clustering analysis in the correct format for silhouette_score and plot_results
     :param clusters: Results from the clustering analysis
+    :type clusters: list
     :param dataset: Input dataset
-    :return:
+    :type dataset: list
+    :return: clusters in the correct format
+    :rtype: list
     """
     labels = copy.deepcopy(dataset)
     for i in range(len(clusters)):
@@ -83,12 +103,20 @@ def plot_results(pca_df, test_df, clusters_train, clusters_test, centers, metric
     """
     Plot the results from the clustering analysis
     :param pca_df: Dataframe from the principal component analysis
+    :type pca_df: pd.DataFrame
     :param test_df: Dataframe from the test set
-    :param clusters_train: Results from the clustering analysis for the train set
-    :param clusters_test: Results from the clustering analysis for the test set
+    :type test_df: pd.DataFrame
+    :param clusters_train: Results from the clustering analysis for the train set straight from the clustering analysis
+    (DONT USE THE get_results FUNCTION)
+    :type clusters_train: list
+    :param clusters_test: Results from the clustering analysis for the test set straight from the clustering analysis
+    (DONT USE THE get_results FUNCTION)
+    :type clusters_test: list
     :param centers: Cluster centers
-    :param metric: Metric used for the clustering analysis (str)
-    :return:
+    :type centers: list
+    :param metric: Metric used for the clustering analysis 'Euclidean' or 'Manhattan'
+    :type metric: str
+    :return: Plot of the results
     """
     # Prepare the data
     plt.figure(figsize=(10, 6))
@@ -124,6 +152,9 @@ def plot_results(pca_df, test_df, clusters_train, clusters_test, centers, metric
 
 
 class kmeans_mod(kmeans):
+    """
+    This class is a modified version of the kmeans class from the pyclustering library with the predict method debugged
+    """
 
     def predict(self, points):
         """!
