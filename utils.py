@@ -60,9 +60,10 @@ def create_test_df():
     :return: test dataframe
     :rtype: pd.DataFrame
     """
-    test = np.zeros((7, 2))
-    test[:, 0] = [2, 2, 3, 3, 2, 0, 2]
-    test[:, 1] = [2, 3, 2, 2, 1, 2, 0]
+    test = np.zeros((6, 2))
+    test[:, 0] = [2, 2, 3, 2, 0, 2]
+    test[:, 1] = [2, 3, 2, 1, 2, 0]
+
 
     test_df = pd.DataFrame(test, columns=[
         'Principal Component 1',
@@ -138,6 +139,8 @@ def plot_results(pca_df, test_df, clusters_train, clusters_test, centers, metric
     plt.scatter(test_df['Principal Component 1'], test_df['Principal Component 2'], marker="^",
                 c=results_test['clusters'], cmap='plasma', edgecolors='k', s=150, alpha=0.8, label='Test Data')
 
+    for i in range(0, 7):
+      plt.annotate(str(i), (test_df['Principal Component 1'].to_numpy()[i], test_df['Principal Component 2'].to_numpy()[i]), textcoords="offset points", xytext=(0,7), ha='center')
     # Plot cluster centers
 
     centers = np.array(centers)
@@ -149,7 +152,6 @@ def plot_results(pca_df, test_df, clusters_train, clusters_test, centers, metric
     plt.grid(visible=False)
     plt.legend()
     plt.show()
-
 
 class kmeans_mod(kmeans):
     """
