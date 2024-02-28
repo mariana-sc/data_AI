@@ -139,8 +139,8 @@ def plot_results(pca_df, test_df, clusters_train, clusters_test, centers, metric
     plt.scatter(test_df['Principal Component 1'], test_df['Principal Component 2'], marker="^",
                 c=results_test['clusters'], cmap='plasma', edgecolors='k', s=150, alpha=0.8, label='Test Data')
 
-    for i in range(0, 7):
-      plt.annotate(str(i), (test_df['Principal Component 1'].to_numpy()[i], test_df['Principal Component 2'].to_numpy()[i]), textcoords="offset points", xytext=(0,7), ha='center')
+    for i in range(0, 6):
+      plt.annotate(str(i), (test_df['Principal Component 1'].to_numpy()[i], test_df['Principal Component 2'].to_numpy()[i]), textcoords="offset points", xytext=(0,6), ha='center')
     # Plot cluster centers
 
     centers = np.array(centers)
