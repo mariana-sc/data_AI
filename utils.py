@@ -40,6 +40,11 @@ def create_dataset(df, pcs):
     :return: Dataset for the clustering analysis
     :rtype: list
     """
+    if df.shape not  in [(200,5)]:
+        raise ValueError('pca_df has the wrong shape')
+    if list(df.columns) != ['Principal Component 1', 'Principal Component 2',
+       'Principal Component 3', 'Principal Component 4', 'dataset']:
+        raise ValueError('pca_df has the wrong columns')
     if 1 not in pcs or 2 not in pcs:
         raise ValueError('You picked the wrong components')
     return [np.array([pc1, pc2]) for pc1, pc2 in zip(df['Principal Component 1'], df['Principal Component 2'])]
@@ -60,10 +65,9 @@ def create_test_df():
     :return: test dataframe
     :rtype: pd.DataFrame
     """
-    test = np.zeros((6, 2))
-    test[:, 0] = [2, 2, 3, 2, 0, 2]
-    test[:, 1] = [2, 3, 2, 1, 2, 0]
-
+    test = np.zeros((7, 2))
+    test[:, 0] = [2, 2, 3, 3, 2, 0, 2]
+    test[:, 1] = [2, 3, 2, 2, 1, 2, 0]
 
     test_df = pd.DataFrame(test, columns=[
         'Principal Component 1',
@@ -139,8 +143,6 @@ def plot_results(pca_df, test_df, clusters_train, clusters_test, centers, metric
     plt.scatter(test_df['Principal Component 1'], test_df['Principal Component 2'], marker="^",
                 c=results_test['clusters'], cmap='plasma', edgecolors='k', s=150, alpha=0.8, label='Test Data')
 
-    for i in range(0, 6):
-      plt.annotate(str(i), (test_df['Principal Component 1'].to_numpy()[i], test_df['Principal Component 2'].to_numpy()[i]), textcoords="offset points", xytext=(0,6), ha='center')
     # Plot cluster centers
 
     centers = np.array(centers)
@@ -152,6 +154,7 @@ def plot_results(pca_df, test_df, clusters_train, clusters_test, centers, metric
     plt.grid(visible=False)
     plt.legend()
     plt.show()
+
 
 class kmeans_mod(kmeans):
     """
